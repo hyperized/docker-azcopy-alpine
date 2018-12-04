@@ -10,4 +10,8 @@ ENV GOOS linux
 ENV GARCH amd64
 ENV CGO_ENABLED 0
 RUN go install -v -a -installsuffix cgo
-COPY /go/bin/azure-storage-azcopy /usr/bin/azcopy
+
+RUN cp /go/bin/azure-storage-azcopy /go/bin/azcopy
+RUN chown nobody:nogroup /go/bin
+USER nobody
+ENTRYPOINT /go/bin/azcopy
