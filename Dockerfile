@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM golang:alpine as builder
 
 LABEL maintainer="Gerben Geijteman <gerben@hyperized.net>"
 LABEL description="A simple Alpine container with the latest version of AZCopy"
@@ -11,7 +11,8 @@ ENV GARCH amd64
 ENV CGO_ENABLED 0
 RUN go install -v -a -installsuffix cgo
 
-RUN cp /go/bin/azure-storage-azcopy /go/bin/azcopy
-RUN chown nobody:nogroup /go/bin
+FROM alpine
+COPY --from=builder /go/bin/azure-storage-azcopy /app/azcopy
+RUN chown nobody:nogroup /app
 USER nobody
-ENTRYPOINT /go/bin/azcopy
+ENTRYPOINT /app/azcopy
