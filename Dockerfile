@@ -1,18 +1,10 @@
-FROM golang:alpine as builder
+FROM centos
+RUN yum -y update && \
+    yum -y install wget rsync libunwind icu && \
+    wget -O azcopy.tar.gz https://aka.ms/downloadazcopylinux64 && \
+    tar -xf azcopy.tar.gz && \
+    ./install.sh && \
+    rm -Rf azcopy*
 
-LABEL maintainer="Gerben Geijteman <gerben@hyperized.net>"
-LABEL description="A simple Alpine container with the latest version of AZCopy"
-
-RUN apk add --no-cache git && rm -rf /var/cache/apk/*
-RUN go get -u github.com/Azure/azure-storage-azcopy
-WORKDIR /go/src/github.com/Azure/azure-storage-azcopy
-ENV GOOS linux
-ENV GARCH amd64
-ENV CGO_ENABLED 0
-RUN go install -v -a -installsuffix cgo
-
-FROM alpine
-COPY --from=builder /go/bin/azure-storage-azcopy /app/azcopy
-RUN apk add --no-cache ca-certificates && rm -rf /var/cache/apk/*
-ENTRYPOINT ["/app/azcopy"]
+ENTRYPOINT ["/usr/bin/azcopy"]
 CMD ["--version"]
